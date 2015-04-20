@@ -7,14 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA03FE071AD2400D004EB86B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA03FE061AD2400D004EB86B /* OpenGL.framework */; };
+		AA2AB2011ADC632C000DD349 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA2AB1FF1ADC632C000DD349 /* scene.cpp */; };
+		AA2AB2041ADD030C000DD349 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA2AB2021ADD030C000DD349 /* camera.cpp */; };
+		AAA19FC71ADE404200FC733B /* model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAA19FC51ADE404200FC733B /* model.cpp */; };
+		AABB7DD91AD9D77D00AF7BFB /* libglfw.3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AA03FE0A1AD242A0004EB86B /* libglfw.3.1.dylib */; };
+		AABB7DDB1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AABB7DDA1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib */; };
+		AABB7DDD1ADA264400AF7BFB /* shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AABB7DDC1ADA264400AF7BFB /* shader.cpp */; };
 		AACD42EE1AD2050C00846D5F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AACD42ED1AD2050C00846D5F /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		AACD42E81AD2050C00846D5F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			buildActionMask = 8;
+			dstPath = "";
 			dstSubfolderSpec = 0;
 			files = (
 			);
@@ -23,6 +30,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AA03FE061AD2400D004EB86B /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		AA03FE0A1AD242A0004EB86B /* libglfw.3.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.1.dylib; path = ../../../../usr/local/lib/libglfw.3.1.dylib; sourceTree = "<group>"; };
+		AA2AB1FF1ADC632C000DD349 /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene.cpp; sourceTree = "<group>"; };
+		AA2AB2001ADC632C000DD349 /* scene.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = scene.hpp; sourceTree = "<group>"; };
+		AA2AB2021ADD030C000DD349 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
+		AA2AB2031ADD030C000DD349 /* camera.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
+		AA2AB2051ADDB6F6000DD349 /* globals.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = globals.hpp; sourceTree = "<group>"; };
+		AAA19FC51ADE404200FC733B /* model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = model.cpp; sourceTree = "<group>"; };
+		AAA19FC61ADE404200FC733B /* model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = model.hpp; sourceTree = "<group>"; };
+		AABB7DDA1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.12.0.dylib; path = "../../../../glew-1.12.0/lib/libGLEW.1.12.0.dylib"; sourceTree = "<group>"; };
+		AABB7DDC1ADA264400AF7BFB /* shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shader.cpp; path = common/shader.cpp; sourceTree = "<group>"; };
+		AABB7DDE1ADA268000AF7BFB /* shader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = shader.hpp; path = common/shader.hpp; sourceTree = "<group>"; };
 		AACD42EA1AD2050C00846D5F /* opengltest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = opengltest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AACD42ED1AD2050C00846D5F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -32,6 +51,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AABB7DDB1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib in Frameworks */,
+				AABB7DD91AD9D77D00AF7BFB /* libglfw.3.1.dylib in Frameworks */,
+				AA03FE071AD2400D004EB86B /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +63,9 @@
 		AACD42E11AD2050C00846D5F = {
 			isa = PBXGroup;
 			children = (
+				AABB7DDA1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib */,
+				AA03FE0A1AD242A0004EB86B /* libglfw.3.1.dylib */,
+				AA03FE061AD2400D004EB86B /* OpenGL.framework */,
 				AACD42EC1AD2050C00846D5F /* opengltest */,
 				AACD42EB1AD2050C00846D5F /* Products */,
 			);
@@ -57,7 +82,16 @@
 		AACD42EC1AD2050C00846D5F /* opengltest */ = {
 			isa = PBXGroup;
 			children = (
+				AA2AB1FF1ADC632C000DD349 /* scene.cpp */,
+				AAA19FC51ADE404200FC733B /* model.cpp */,
+				AAA19FC61ADE404200FC733B /* model.hpp */,
+				AA2AB2001ADC632C000DD349 /* scene.hpp */,
+				AA2AB2051ADDB6F6000DD349 /* globals.hpp */,
+				AA2AB2021ADD030C000DD349 /* camera.cpp */,
+				AA2AB2031ADD030C000DD349 /* camera.hpp */,
+				AABB7DDE1ADA268000AF7BFB /* shader.hpp */,
 				AACD42ED1AD2050C00846D5F /* main.cpp */,
+				AABB7DDC1ADA264400AF7BFB /* shader.cpp */,
 			);
 			path = opengltest;
 			sourceTree = "<group>";
@@ -118,7 +152,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA2AB2011ADC632C000DD349 /* scene.cpp in Sources */,
+				AAA19FC71ADE404200FC733B /* model.cpp in Sources */,
+				AABB7DDD1ADA264400AF7BFB /* shader.cpp in Sources */,
 				AACD42EE1AD2050C00846D5F /* main.cpp in Sources */,
+				AA2AB2041ADD030C000DD349 /* camera.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -202,6 +240,16 @@
 		AACD42F21AD2050C00846D5F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/Applications/XCode.app/,
+					/usr/local/lib,
+					"/glew-1.12.0/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -209,6 +257,16 @@
 		AACD42F31AD2050C00846D5F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/Applications/XCode.app/,
+					/usr/local/lib,
+					"/glew-1.12.0/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -232,6 +290,7 @@
 				AACD42F31AD2050C00846D5F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
