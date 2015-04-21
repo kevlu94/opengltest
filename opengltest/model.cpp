@@ -9,13 +9,29 @@ using namespace std;
 
 Model::Model()
 {
+    m_numVertices = 0;
+    m_yaw = 0;
+    m_pitch = 0;
+    m_roll = 0;
     glGenBuffers(1, &m_positionVBO);
     glGenBuffers(1, &m_colorVBO);
 }
 
+Model::Model(const char *path, glm::vec3 position)
+{
+    m_numVertices = 0;
+    m_yaw = 0;
+    m_pitch = 0;
+    m_roll = 0;
+    m_position = position;
+    glGenBuffers(1, &m_positionVBO);
+    glGenBuffers(1, &m_colorVBO);
+    loadColorOBJ(path);
+}
 
 
 
+/*
 int Model::loadUVOBJ(const char *path)
 {
     cerr << "Loading model from file " << path << endl;
@@ -70,7 +86,7 @@ int Model::loadUVOBJ(const char *path)
     }
     return 0;
 }
-
+*/
 
 
 
@@ -79,8 +95,11 @@ int Model::loadColorOBJ(const char *path)
     cerr << "Loading model from file " << path << endl;
     std::ifstream infile(path);
     
-    std::vector<glm::vec3> vertexList;
+    std::vector<glm::vec3> pointList;
     std::vector<glm::vec3> colorList;
+    std::vector<glm::vec3> pointBuffer;
+    std::vector<glm::vec3> colorBuffer;
+    
     
     string line, label;
     
@@ -96,7 +115,7 @@ int Model::loadColorOBJ(const char *path)
         if (label.compare("v") == 0)
         {
             iss >> v0 >> v1 >> v2 >> c0 >> c1 >> c2;
-            vertexList.push_back(glm::vec3(v0, v1, v2));
+            pointList.push_back(glm::vec3(v0, v1, v2));
             colorList.push_back(glm::vec3(c0, c1, c2));
         }
         else if (label.compare("f") == 0)
@@ -106,8 +125,8 @@ int Model::loadColorOBJ(const char *path)
             {
                 if (colorList[index[i]] == glm::vec3(0.0f))
                     continue;
-                m_vertex_buffer.push_back(vertexList[index[i]]);
-                m_color_buffer.push_back(colorList[index[i]]);
+                pointBuffer.push_back(pointList[index[i]]);
+                colorBuffer.push_back(colorList[index[i]]);
             }
         }
         else if (label.compare("vn") == 0)
@@ -115,6 +134,21 @@ int Model::loadColorOBJ(const char *path)
         else
             continue;
     }
+    
+    m_numVertices = pointBuffer.size();
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
+    glBufferData(GL_ARRAY_BUFFER,
+                 m_numVertices * sizeof(glm::vec3),
+                 &pointBuffer[0],
+                 GL_STATIC_DRAW);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
+    glBufferData(GL_ARRAY_BUFFER,
+                 m_numVertices * sizeof(glm::vec3),
+                 &colorBuffer[0],
+                 GL_STATIC_DRAW);
+    
     return 0;
 }
 

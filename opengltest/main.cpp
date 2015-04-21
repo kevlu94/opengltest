@@ -15,11 +15,6 @@ using namespace glm;
 
 GLFWwindow* window;
 
-GLuint MVPID;
-GLuint VERTEX_BUFFER;
-GLuint COLOR_BUFFER;
-
-
 int initializeGL()
 {
     // Initialise GLFW
@@ -66,10 +61,6 @@ int initializeGL()
 }
 
 
-
-
-
-
 int main( void )
 {
     // prepare GL environment
@@ -84,59 +75,22 @@ int main( void )
     // initialize camera, scene, and objects to draw
     Camera camera(window, vec3(0,0,4), 0.0f, 0.0f);
     Scene scene(&camera, program);
-    Model faceModel;
-    faceModel.loadColorOBJ("ALEX/alex.obj");
-    scene.addModel(&faceModel);
+    Model faceModel1("ALEX/alex.obj", glm::vec3(1.0f, 0.0f, 0.0f));
+    Model faceModel2("ALEX/alex.obj", glm::vec3(-1.0f, 0.0f, 0.0f));
+    
+    scene.addModel(&faceModel1);
+    scene.addModel(&faceModel2);
     
     // create vertex array
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
-    
-    // get the location of the uniform "MVP" in the vertex shader
-    MVPID = glGetUniformLocation(program, "MVP");
 
-    
-    
-    // set up vertex buffer and pass in vertex data
-    glGenBuffers(1,                             // Generate 1 buffer
-                 &VERTEX_BUFFER);               // with the name VERTEX_BUFFER
-    glBindBuffer(GL_ARRAY_BUFFER,               // Binding target: GL_ARRAY_BUFFER
-                 VERTEX_BUFFER);                // Bind the generated buffer (VERTEX_BUFFER)
-    glBufferData(GL_ARRAY_BUFFER,               // Destination buffer: GL_ARRAY_BUFFER
-                 scene.vertexBufferBytes(),     // Amount (bytes) of data to send to buffer
-                 scene.vertexBuffer(),          // Source buffer containing the data
-                 GL_STATIC_DRAW);               // Usage of the data
-    GLint ploc = glGetAttribLocation(program, "vertexPosition");
-    glEnableVertexAttribArray(ploc);               // Enable vertex attribute array at index 0
-    glVertexAttribPointer(ploc,                    // For the array at index 0, let GL know that...
-                          3,                    // each vertex has three numbers
-                          GL_FLOAT,             // of type GL_FLOAT
-                          GL_FALSE,             // that should not be normalized,
-                          0,                    // and these numbers are consecutive in the buffer
-                          (void*)0);            // starting from the beginning of the buffer
+    // specify the model characteristics for the shader program
+    scene.prepareAllModels(program);
 
-    
-    // set up color buffer and pass in color data
-    glGenBuffers(1,                             // Generate 1 buffer
-                 &COLOR_BUFFER);                // with the name COLOR_BUFFER
-    glBindBuffer(GL_ARRAY_BUFFER,               // Binding target: GL_ARRAY_BUFFER
-                 COLOR_BUFFER);                 // Bind the generated buffer (COLOR_BUFFER)
-    glBufferData(GL_ARRAY_BUFFER,               // Destination buffer: GL_ARRAY_BUFFER
-                 scene.colorBufferBytes(),      // Amount (bytes) of data to send to buffer
-                 scene.colorBuffer(),           // Source buffer containing the data
-                 GL_STATIC_DRAW);               // Usage of the data
-    GLint cloc = glGetAttribLocation(program, "vertexColor");
-    glEnableVertexAttribArray(cloc);               // Enable vertex attribute array at index 1
-    glVertexAttribPointer(cloc,                    // For the array at index 0, let GL know that...
-                          3,                    // each vertex has three numbers
-                          GL_FLOAT,             // of type GL_FLOAT
-                          GL_FALSE,             // that should not be normalized,
-                          0,                    // and these numbers are consecutive in the buffer
-                          (void*)0);            // starting from the beginning of the buffer
-    
-    
     // continuously draw the scene we've created
+    
     while(glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0)
     {
         camera.update();
@@ -144,8 +98,6 @@ int main( void )
     }
     
     // Cleanup VBO and shader
-    glDeleteBuffers(1, &VERTEX_BUFFER);
-    glDeleteBuffers(1, &COLOR_BUFFER);
     glDeleteProgram(program);
     glDeleteVertexArrays(1, &VertexArrayID);
     

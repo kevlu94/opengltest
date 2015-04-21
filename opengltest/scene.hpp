@@ -28,31 +28,9 @@ public:
     
     void addModel(Model *model);
     void moveModel(Model *model);
+    void prepareAllModels(GLuint program);
     void draw();
-    
-    // accessor functions
-    GLvoid *vertexBuffer() { return &m_vertex_buffer[0]; }
-    GLvoid *colorBuffer() { return &m_color_buffer[0]; }
-    GLvoid *uvBuffer() { return &m_uv_buffer[0]; }
-    GLvoid *normalBuffer() { return &m_normal_buffer[0]; }
-    unsigned long vertexBufferBytes() const;
-    unsigned long colorBufferBytes() const;
-    unsigned long uvBufferBytes() const;
-    unsigned long normalBufferBytes() const;
-    unsigned long numPoints() const { return vertexBufferBytes() / sizeof(glm::vec3); }
-    glm::mat4 view() const;
-    glm::mat4 projection() const { return m_projection_matrix; }
     glm::mat4 MVP(Model *model) const { return projection() * view() * model->model(); }
-
-    // mutator functions
-    void addVertices(const std::vector<glm::vec3> &newData) { appendVecToVec(m_vertex_buffer, newData); }
-    void addVertices(const std::vector<GLfloat> &newData) { appendVecToVecVec(m_vertex_buffer, newData); }
-    void addColors(std::vector<glm::vec3> &newData) { appendVecToVec(m_color_buffer, newData); }
-    void addColors(std::vector<GLfloat> &newData) { appendVecToVecVec(m_color_buffer, newData); }
-    void setModel(glm::mat4 matrix) { m_model_matrix = matrix; }
-    void setProjection(glm::mat4 matrix) { m_projection_matrix = matrix; }
-    
-    
     
 private:
     
@@ -61,15 +39,13 @@ private:
     void appendVecToVec(std::vector<Type> &left, const std::vector<Type> &right);
     template<typename Vector, typename Type>
     void appendVecToVecVec(std::vector<Vector> &left, const std::vector<Type> &right);
-    
-    // variables
+    glm::mat4 view() const;
+    glm::mat4 projection() const { return m_projection_matrix; }
+    void prepareModel(Model *model, GLuint program);
+
+    // private variables
     GLuint m_program;
     GLFWwindow* m_window;
-    std::vector<glm::vec3> m_vertex_buffer;
-    std::vector<glm::vec3> m_color_buffer;
-    std::vector<glm::vec2> m_uv_buffer;
-    std::vector<glm::vec3> m_normal_buffer;
-    glm::mat4 m_model_matrix;
     glm::mat4 m_projection_matrix;
     Camera *m_camera;
     std::vector<Model*> m_models;
