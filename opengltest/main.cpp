@@ -91,9 +91,6 @@ int main(int argc, const char *argv[])
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
 
-    // specify the model characteristics for the shader program
-    scene.prepareAllModels(program);
-
     fprintf(stderr, "error code before loop: %x\n", glGetError());
     
     // continuously draw the scene we've created

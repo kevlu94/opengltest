@@ -27,7 +27,6 @@ public:
     ~Scene() {}
     
     void addModel(Model *model);
-    void prepareAllModels(GLuint program);
     void handleMouse();
     void draw();
     glm::mat4 MVP(Model *model) const { return projection() * view() * model->model(); }
@@ -45,7 +44,6 @@ private:
     template<typename Vector, typename Type>
     void appendVecToVecVec(std::vector<Vector> &left, const std::vector<Type> &right);
     
-    void prepareModel(Model *model, GLuint program);
     void moveModel(Model *model);
 
 

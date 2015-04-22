@@ -17,8 +17,8 @@ public:
 
     unsigned long numVertices() { return m_numVertices; }
     glm::mat4 model() const;
-    void setMarker(GLuint program, glm::vec3 position);
-    void drawMarkers() const;
+    void setMarker(glm::vec3 position);
+    void drawMarkers(GLuint program) const;
     
     // accessor functions
     glm::vec3 position() { return m_position; }
@@ -51,32 +51,14 @@ private:
     class Marker
     {
     public:
-        Marker(glm::vec3 position)
-        {
-            std::vector<glm::vec3> positionBuffer, colorBuffer;
-            positionBuffer.push_back(position);
-            positionBuffer.push_back(position + glm::vec3(0.1f, 0.0f, 0.0f));
-            positionBuffer.push_back(position + glm::vec3(0.0f, 0.1f, 0.0f));
-            colorBuffer.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
-            colorBuffer.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
-            colorBuffer.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
-            glGenBuffers(1, &m_positionVBO);
-            glGenBuffers(1, &m_colorVBO);
-            glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
-            glBufferData(GL_ARRAY_BUFFER,
-                         positionBuffer.size() * sizeof(glm::vec3),
-                         &positionBuffer[0],
-                         GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
-            glBufferData(GL_ARRAY_BUFFER,
-                         colorBuffer.size() * sizeof(glm::vec3),
-                         &colorBuffer[0],
-                         GL_STATIC_DRAW);
-        }
+        Marker(glm::vec3 position);
         ~Marker() {}
+        unsigned long numVertices() const { return m_numVertices; }
         GLuint positionVBO() const { return m_positionVBO; }
         GLuint colorVBO() const { return m_colorVBO; }
     private:
+        glm::vec3 m_center;
+        unsigned long m_numVertices;
         GLuint m_positionVBO;
         GLuint m_colorVBO;
     };

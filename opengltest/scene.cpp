@@ -44,19 +44,6 @@ void Scene::moveModel(Model *model)
     }
 }
 
-void Scene::prepareModel(Model *model, GLuint program)
-{
-    // for model's vertices
-    model->setAttribute(program, "vertexPosition", model->positionVBO());
-    model->setAttribute(program, "vertexColor", model->colorVBO());
-}
-
-void Scene::prepareAllModels(GLuint program)
-{
-    unsigned long numModels = m_models.size();
-    for (unsigned long i = 0; i < numModels; i++)
-        prepareModel(m_models[i], program);
-}
 
 void Scene::handleMouse()
 {
@@ -80,7 +67,7 @@ void Scene::handleMouse()
                                          projection(),
                                          v);
         
-        m_models[0]->setMarker(m_program, world);
+        m_models[0]->setMarker(world);
         
         fprintf(stderr, "(%f, %f, %f)\n", world[0], world[1], world[2]);
     }
@@ -103,8 +90,10 @@ void Scene::draw()
         moveModel(model);
         glBindBuffer(GL_ARRAY_BUFFER, model->positionVBO());
         glUniformMatrix4fv(glGetUniformLocation(m_program, "MVP"), 1, GL_FALSE, &(MVP(model))[0][0]);
+        model->setAttribute(m_program, "vertexPosition", model->positionVBO());
+        model->setAttribute(m_program, "vertexColor", model->colorVBO());
         glDrawArrays(GL_TRIANGLES, 0, (int) model->numVertices());
-        model->drawMarkers();
+        model->drawMarkers(m_program);
     }
 
     // Swap buffers
