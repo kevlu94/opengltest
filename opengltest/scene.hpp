@@ -27,10 +27,15 @@ public:
     ~Scene() {}
     
     void addModel(Model *model);
-    void moveModel(Model *model);
     void prepareAllModels(GLuint program);
+    void handleMouse();
     void draw();
     glm::mat4 MVP(Model *model) const { return projection() * view() * model->model(); }
+    
+    
+    
+    glm::mat4 view() const;
+    glm::mat4 projection() const { return m_projection_matrix; }
     
 private:
     
@@ -39,9 +44,10 @@ private:
     void appendVecToVec(std::vector<Type> &left, const std::vector<Type> &right);
     template<typename Vector, typename Type>
     void appendVecToVecVec(std::vector<Vector> &left, const std::vector<Type> &right);
-    glm::mat4 view() const;
-    glm::mat4 projection() const { return m_projection_matrix; }
+    
     void prepareModel(Model *model, GLuint program);
+    void moveModel(Model *model);
+
 
     // private variables
     GLuint m_program;
@@ -49,6 +55,7 @@ private:
     glm::mat4 m_projection_matrix;
     Camera *m_camera;
     std::vector<Model*> m_models;
+    Model *m_selectedModel;
 };
 
 // templated functions

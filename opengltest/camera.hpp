@@ -14,14 +14,13 @@ public:
     ~Camera() {}
     
     void update();
-    
+    void move(glm::vec3 distance);
+
     // accessor functions
     GLFWwindow* window() { return m_window; }
     glm::vec3 position() { return m_position; }
     glm::vec3 direction();
     
-    // mutator functions
-    void move(glm::vec3 distance);
     
 private:
     GLFWwindow* m_window;

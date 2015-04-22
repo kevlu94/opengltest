@@ -31,7 +31,7 @@ int initializeGL()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     
     // Open a window and create its OpenGL context
-    window = glfwCreateWindow( WINDOW_WIDTH, WINDOW_HEIGHT, "Tutorial 03 - Matrices", NULL, NULL);
+    window = glfwCreateWindow( WINDOW_WIDTH, WINDOW_HEIGHT, "Picking Test", NULL, NULL);
     if( window == NULL ){
         fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
         glfwTerminate();
@@ -50,18 +50,22 @@ int initializeGL()
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     
     // Dark blue background
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+    glClearColor(0.0f, 0.8f, 0.9f, 0.0f);
     
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
+    // Enable depth buffer for writing
+    glDepthMask(GL_TRUE);
     // Accept fragment if it closer to the camera than the former one
-    glDepthFunc(GL_LESS);
+    glDepthFunc(GL_ALWAYS);
+    // Set range
+    glDepthRange(0.0f, 1.0f);
     
     return 0;
 }
 
 
-int main( void )
+int main(int argc, const char *argv[])
 {
     // prepare GL environment
     if (initializeGL() == -1)
@@ -75,11 +79,12 @@ int main( void )
     // initialize camera, scene, and objects to draw
     Camera camera(window, vec3(0,0,4), 0.0f, 0.0f);
     Scene scene(&camera, program);
-    Model faceModel1("ALEX/alex.obj", glm::vec3(1.0f, 0.0f, 0.0f));
-    Model faceModel2("ALEX/alex.obj", glm::vec3(-1.0f, 0.0f, 0.0f));
+    Model model1(argv[1], glm::vec3(0.0f, 0.0f, 0.0f));
+    //Model model2(argv[2], glm::vec3(1.0f, 0.0f, 0.0f));
     
-    scene.addModel(&faceModel1);
-    scene.addModel(&faceModel2);
+    scene.addModel(&model1);
+    //scene.addModel(&model2);
+    
     
     // create vertex array
     GLuint VertexArrayID;
@@ -89,11 +94,13 @@ int main( void )
     // specify the model characteristics for the shader program
     scene.prepareAllModels(program);
 
-    // continuously draw the scene we've created
+    fprintf(stderr, "error code before loop: %x\n", glGetError());
     
+    // continuously draw the scene we've created
     while(glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0)
     {
         camera.update();
+        scene.handleMouse();
         scene.draw();
     }
     

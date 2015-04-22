@@ -24,36 +24,22 @@ void Camera::move(glm::vec3 distance)
 
 void Camera::update()
 {
-    //EDIT: fix mouse tracking and yaw/pitch mechanics
-    
-    /*double dx, dy;
-    glfwGetCursorPos(m_window, &dx, &dy);
-    dx -= WINDOW_WIDTH / 2;
-    dy -= WINDOW_HEIGHT / 2;
-    glfwSetCursorPos(m_window, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-    
-    m_yaw = fmod(m_yaw + dx, 2.0 * M_PI);
-    m_pitch += dy;*/
+    GLfloat MOVESIZE = 0.05f;
     
     // Move forward
     if (glfwGetKey( m_window, GLFW_KEY_UP ) == GLFW_PRESS){
-        m_pitch = fmod(m_pitch + 0.1, 2.0 * M_PI);
+        move(glm::vec3(0.0f, 0.0f, -MOVESIZE));
     }
     // Move backward
     if (glfwGetKey( m_window, GLFW_KEY_DOWN ) == GLFW_PRESS){
-        m_pitch = fmod(m_pitch - 0.1, 2.0 * M_PI);
-    }
-    // Strafe right
-    if (glfwGetKey( m_window, GLFW_KEY_LEFT ) == GLFW_PRESS){
-        m_yaw = fmod(m_yaw + 0.1, 2.0 * M_PI);
+        move(glm::vec3(0.0f, 0.0f, MOVESIZE));
     }
     // Strafe left
-    if (glfwGetKey( m_window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
-        m_yaw = fmod(m_yaw - 0.1, 2.0 * M_PI);
+    if (glfwGetKey( m_window, GLFW_KEY_LEFT ) == GLFW_PRESS){
+        move(glm::vec3(-MOVESIZE, 0.0f, 0.0f));
     }
-    
-    if (m_pitch > M_PI / 2)
-        m_pitch = M_PI / 2;
-    else if (m_pitch < -M_PI / 2)
-        m_pitch = -M_PI / 2;
+    // Strafe right
+    if (glfwGetKey( m_window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
+        move(glm::vec3(MOVESIZE, 0.0f, 0.0f));
+    }
 }

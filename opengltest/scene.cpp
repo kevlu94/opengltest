@@ -6,6 +6,7 @@ Scene::Scene(Camera *camera, GLuint program)
     m_camera = camera;
     m_window = camera->window();
     m_program = program;
+    m_selectedModel = (Model*) 0;
     // default projection matrix
     m_projection_matrix = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 }
@@ -45,6 +46,7 @@ void Scene::moveModel(Model *model)
 
 void Scene::prepareModel(Model *model, GLuint program)
 {
+    // for model's vertices
     model->setAttribute(program, "vertexPosition", model->positionVBO());
     model->setAttribute(program, "vertexColor", model->colorVBO());
 }
@@ -56,8 +58,40 @@ void Scene::prepareAllModels(GLuint program)
         prepareModel(m_models[i], program);
 }
 
+void Scene::handleMouse()
+{
+    if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+    {
+        GLdouble xpos, ypos;
+        glfwGetCursorPos(m_window, &xpos, &ypos);
+        ypos = WINDOW_HEIGHT - ypos; // flip to make (0,0) the bottom left
+        GLfloat zpos;
+        glReadPixels((int) xpos,
+                     (int) ypos,
+                     1,
+                     1,
+                     GL_DEPTH_COMPONENT,
+                     GL_FLOAT,
+                     &zpos);
+        glm::vec4 v(0.0, 0.0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        
+        glm::vec3 world = glm::unProject(glm::vec3(xpos, ypos, zpos),
+                                         view() * m_models[0]->model(),
+                                         projection(),
+                                         v);
+        
+        m_models[0]->setMarker(m_program, world);
+        
+        fprintf(stderr, "(%f, %f, %f)\n", world[0], world[1], world[2]);
+    }
+}
+
 void Scene::draw()
 {
+    int error = glGetError();
+    if (error)
+        fprintf(stderr, "error: %x\n", error);
+    
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -69,7 +103,8 @@ void Scene::draw()
         moveModel(model);
         glBindBuffer(GL_ARRAY_BUFFER, model->positionVBO());
         glUniformMatrix4fv(glGetUniformLocation(m_program, "MVP"), 1, GL_FALSE, &(MVP(model))[0][0]);
-        glDrawArrays(GL_POINTS, 0, (int) model->numVertices());
+        glDrawArrays(GL_TRIANGLES, 0, (int) model->numVertices());
+        model->drawMarkers();
     }
 
     // Swap buffers
