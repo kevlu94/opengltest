@@ -47,7 +47,7 @@ int initializeGL()
     }
     
     // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_FALSE);
     
     // Dark blue background
     glClearColor(0.0f, 0.8f, 0.9f, 0.0f);
@@ -97,7 +97,7 @@ int main(int argc, const char *argv[])
     while(glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0)
     {
         camera.update();
-        scene.handleMouse();
+        scene.update();
         scene.draw();
     }
     

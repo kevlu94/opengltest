@@ -18,6 +18,7 @@ public:
     unsigned long numVertices() { return m_numVertices; }
     glm::mat4 model() const;
     void setMarker(glm::vec3 position);
+    void undoMarker();
     void drawMarkers(GLuint program) const;
     
     // accessor functions

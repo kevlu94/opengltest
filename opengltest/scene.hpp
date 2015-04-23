@@ -27,11 +27,9 @@ public:
     ~Scene() {}
     
     void addModel(Model *model);
-    void handleMouse();
+    void update();
     void draw();
     glm::mat4 MVP(Model *model) const { return projection() * view() * model->model(); }
-    
-    
     
     glm::mat4 view() const;
     glm::mat4 projection() const { return m_projection_matrix; }

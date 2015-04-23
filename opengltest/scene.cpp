@@ -45,10 +45,14 @@ void Scene::moveModel(Model *model)
 }
 
 
-void Scene::handleMouse()
+void Scene::update()
 {
-    if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+    static bool mouseDown = false;
+    static bool mDown = false;
+    
+    if (!mouseDown && glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
     {
+        mouseDown = true;
         GLdouble xpos, ypos;
         glfwGetCursorPos(m_window, &xpos, &ypos);
         ypos = WINDOW_HEIGHT - ypos; // flip to make (0,0) the bottom left
@@ -71,6 +75,19 @@ void Scene::handleMouse()
         
         fprintf(stderr, "(%f, %f, %f)\n", world[0], world[1], world[2]);
     }
+    else if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE)
+        mouseDown = false;
+    
+    if (!mDown && glfwGetKey(m_window, GLFW_KEY_M) == GLFW_PRESS)
+    {
+        mDown = true;
+        m_models[0]->undoMarker();
+    }
+    else if (glfwGetKey(m_window, GLFW_KEY_M) == GLFW_RELEASE)
+        mDown = false;
+    
+    
+    
 }
 
 void Scene::draw()

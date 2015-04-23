@@ -106,6 +106,12 @@ void Model::setMarker(glm::vec3 position)
     m_markers.push_back(Marker(position));
 }
 
+void Model::undoMarker()
+{
+    if (m_markers.size())
+        m_markers.pop_back();
+}
+
 void Model::drawMarkers(GLuint program) const
 {
     if (m_markers.empty())
