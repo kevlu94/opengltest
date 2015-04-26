@@ -11,42 +11,63 @@ Scene::Scene(Camera *camera, GLuint program)
     m_projection_matrix = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 }
 
+Scene::~Scene()
+{
+    while (!m_models.empty())
+    {
+        delete m_models.back();
+        m_models.pop_back();
+    }
+}
+
 void Scene::addModel(Model *model)
 {
     m_models.push_back(model);
+    selectModel(m_models.size() - 1); // select most recently added model
+}
+
+void Scene::addModel(const char *path, glm::vec3 position)
+{
+    m_models.push_back(new Model(path, position));
+    selectModel(m_models.size() - 1); // select most recently added model
 }
 
 void Scene::moveModel(Model *model)
 {
-    // pitch positive
-    if (glfwGetKey( m_window, GLFW_KEY_W ) == GLFW_PRESS){
-        model->pitchBy(0.1f);
-    }
+    GLfloat angle = 0.05f;
+    
     // pitch negative
-    if (glfwGetKey( m_window, GLFW_KEY_S ) == GLFW_PRESS){
-        model->pitchBy(-0.1f);
+    if (glfwGetKey( m_window, GLFW_KEY_W ) == GLFW_PRESS){
+        model->pitchBy(-angle);
     }
-    // yaw positive
-    if (glfwGetKey( m_window, GLFW_KEY_D ) == GLFW_PRESS){
-        model->yawBy(0.1f);
+    // pitch positive
+    if (glfwGetKey( m_window, GLFW_KEY_S ) == GLFW_PRESS){
+        model->pitchBy(angle);
     }
     // yaw negative
     if (glfwGetKey( m_window, GLFW_KEY_A ) == GLFW_PRESS){
-        model->yawBy(-0.1f);
+        model->yawBy(-angle);
     }
-    // roll positive
-    if (glfwGetKey( m_window, GLFW_KEY_E ) == GLFW_PRESS){
-        model->rollBy(0.1f);
+    // yaw positive
+    if (glfwGetKey( m_window, GLFW_KEY_D ) == GLFW_PRESS){
+        model->yawBy(angle);
     }
     // roll negative
+    if (glfwGetKey( m_window, GLFW_KEY_E ) == GLFW_PRESS){
+        model->rollBy(-angle);
+    }
+    // roll positive
     if (glfwGetKey( m_window, GLFW_KEY_Q ) == GLFW_PRESS){
-        model->rollBy(-0.1f);
+        model->rollBy(angle);
     }
 }
 
 
 void Scene::update()
 {
+    if (!m_selectedModel)
+        return;
+    
     static bool mouseDown = false;
     static bool mDown = false;
     
@@ -67,13 +88,13 @@ void Scene::update()
         glm::vec4 v(0.0, 0.0, WINDOW_WIDTH, WINDOW_HEIGHT);
         
         glm::vec3 world = glm::unProject(glm::vec3(xpos, ypos, zpos),
-                                         view() * m_models[0]->model(),
+                                         view() * m_selectedModel->model(),
                                          projection(),
                                          v);
         
-        m_models[0]->setMarker(world);
+        m_selectedModel->setMarker(world);
         
-        fprintf(stderr, "(%f, %f, %f)\n", world[0], world[1], world[2]);
+        fprintf(stderr, "Marker %lu: (%f, %f, %f)\n", m_selectedModel->numMarkers(), world[0], world[1], world[2]);
     }
     else if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE)
         mouseDown = false;
@@ -81,7 +102,7 @@ void Scene::update()
     if (!mDown && glfwGetKey(m_window, GLFW_KEY_M) == GLFW_PRESS)
     {
         mDown = true;
-        m_models[0]->undoMarker();
+        m_selectedModel->undoMarker();
     }
     else if (glfwGetKey(m_window, GLFW_KEY_M) == GLFW_RELEASE)
         mDown = false;
@@ -108,7 +129,21 @@ void Scene::draw()
         glBindBuffer(GL_ARRAY_BUFFER, model->positionVBO());
         glUniformMatrix4fv(glGetUniformLocation(m_program, "MVP"), 1, GL_FALSE, &(MVP(model))[0][0]);
         model->setAttribute(m_program, "vertexPosition", model->positionVBO());
-        model->setAttribute(m_program, "vertexColor", model->colorVBO());
+        
+        if (model->colored())
+        {
+            model->setAttribute(m_program, "vertexColor", model->colorVBO());
+        }
+
+        if (model->textured())
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, model->texture());
+            glUniform1i(glGetUniformLocation(m_program, "textureSampler"), 0);
+            model->setAttribute(m_program, "vertexTexture", model->textureVBO());
+        }
+
+        
         glDrawArrays(GL_TRIANGLES, 0, (int) model->numVertices());
         model->drawMarkers(m_program);
     }

@@ -50,14 +50,14 @@ int initializeGL()
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_FALSE);
     
     // Dark blue background
-    glClearColor(0.0f, 0.8f, 0.9f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     // Enable depth buffer for writing
     glDepthMask(GL_TRUE);
     // Accept fragment if it closer to the camera than the former one
-    glDepthFunc(GL_ALWAYS);
+    glDepthFunc(GL_LESS);
     // Set range
     glDepthRange(0.0f, 1.0f);
     
@@ -77,14 +77,11 @@ int main(int argc, const char *argv[])
     glUseProgram(program);
     
     // initialize camera, scene, and objects to draw
-    Camera camera(window, vec3(0,0,4), 0.0f, 0.0f);
+    Camera camera(window, vec3(0,0,2), 0.0f, 0.0f);
     Scene scene(&camera, program);
-    Model model1(argv[1], glm::vec3(0.0f, 0.0f, 0.0f));
-    //Model model2(argv[2], glm::vec3(1.0f, 0.0f, 0.0f));
     
-    scene.addModel(&model1);
-    //scene.addModel(&model2);
-    
+    for (int i = 1; i < argc; i++)
+        scene.addModel(argv[i], glm::vec3(0.0f, 0.0f, 0.0f));
     
     // create vertex array
     GLuint VertexArrayID;
@@ -101,7 +98,7 @@ int main(int argc, const char *argv[])
         scene.draw();
     }
     
-    // Cleanup VBO and shader
+    // Cleanup shader
     glDeleteProgram(program);
     glDeleteVertexArrays(1, &VertexArrayID);
     

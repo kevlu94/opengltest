@@ -2,13 +2,16 @@
 
 in vec3 vertexPosition;
 in vec3 vertexColor;
+in vec2 vertexTexture;
 
 uniform mat4 MVP;
 out vec3 fragmentColor;
+out vec2 fragmentTexture;
 
 void main(){
 
 	gl_Position =  MVP * vec4(vertexPosition,1);
 	fragmentColor = vertexColor;
+	fragmentTexture = vertexTexture;
 
 }

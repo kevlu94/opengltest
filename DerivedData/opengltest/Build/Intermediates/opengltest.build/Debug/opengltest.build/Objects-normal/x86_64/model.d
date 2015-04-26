@@ -78,4 +78,10 @@ dependencies: /Users/myfold/Documents/opengltest/opengltest/model.cpp \
   /usr/local/include/glm/gtc/matrix_transform.hpp \
   /usr/local/include/glm/gtc/../gtc/constants.hpp \
   /usr/local/include/glm/gtc/constants.inl \
-  /usr/local/include/glm/gtc/matrix_transform.inl
+  /usr/local/include/glm/gtc/matrix_transform.inl \
+  /usr/local/include/glm/gtc/quaternion.hpp \
+  /usr/local/include/glm/gtc/quaternion.inl \
+  /usr/local/include/glm/gtx/quaternion.hpp \
+  /usr/local/include/glm/gtx/../gtx/norm.hpp \
+  /usr/local/include/glm/gtx/norm.inl \
+  /usr/local/include/glm/gtx/quaternion.inl /usr/local/include/SOIL.h

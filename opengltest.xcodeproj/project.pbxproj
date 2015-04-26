@@ -10,6 +10,8 @@
 		AA03FE071AD2400D004EB86B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA03FE061AD2400D004EB86B /* OpenGL.framework */; };
 		AA2AB2011ADC632C000DD349 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA2AB1FF1ADC632C000DD349 /* scene.cpp */; };
 		AA2AB2041ADD030C000DD349 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA2AB2021ADD030C000DD349 /* camera.cpp */; };
+		AA86D1E61AEC64A300DB4163 /* libSOIL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AA86D1E31AEC439600DB4163 /* libSOIL.a */; };
+		AA86D1E81AEC68D400DB4163 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA86D1E71AEC68D400DB4163 /* CoreFoundation.framework */; };
 		AAA19FC71ADE404200FC733B /* model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAA19FC51ADE404200FC733B /* model.cpp */; };
 		AABB7DD91AD9D77D00AF7BFB /* libglfw.3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AA03FE0A1AD242A0004EB86B /* libglfw.3.1.dylib */; };
 		AABB7DDB1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AABB7DDA1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib */; };
@@ -37,6 +39,8 @@
 		AA2AB2021ADD030C000DD349 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
 		AA2AB2031ADD030C000DD349 /* camera.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
 		AA2AB2051ADDB6F6000DD349 /* globals.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = globals.hpp; sourceTree = "<group>"; };
+		AA86D1E31AEC439600DB4163 /* libSOIL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSOIL.a; path = ../../../../usr/local/lib/libSOIL.a; sourceTree = "<group>"; };
+		AA86D1E71AEC68D400DB4163 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		AAA19FC51ADE404200FC733B /* model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = model.cpp; sourceTree = "<group>"; };
 		AAA19FC61ADE404200FC733B /* model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = model.hpp; sourceTree = "<group>"; };
 		AABB7DDA1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.12.0.dylib; path = "../../../../glew-1.12.0/lib/libGLEW.1.12.0.dylib"; sourceTree = "<group>"; };
@@ -51,6 +55,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA86D1E81AEC68D400DB4163 /* CoreFoundation.framework in Frameworks */,
+				AA86D1E61AEC64A300DB4163 /* libSOIL.a in Frameworks */,
 				AABB7DDB1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib in Frameworks */,
 				AABB7DD91AD9D77D00AF7BFB /* libglfw.3.1.dylib in Frameworks */,
 				AA03FE071AD2400D004EB86B /* OpenGL.framework in Frameworks */,
@@ -63,6 +69,8 @@
 		AACD42E11AD2050C00846D5F = {
 			isa = PBXGroup;
 			children = (
+				AA86D1E71AEC68D400DB4163 /* CoreFoundation.framework */,
+				AA86D1E31AEC439600DB4163 /* libSOIL.a */,
 				AABB7DDA1AD9EC4E00AF7BFB /* libGLEW.1.12.0.dylib */,
 				AA03FE0A1AD242A0004EB86B /* libglfw.3.1.dylib */,
 				AA03FE061AD2400D004EB86B /* OpenGL.framework */,

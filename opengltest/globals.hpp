@@ -3,8 +3,8 @@
 
 #include <glm/glm.hpp>
 
-const double WINDOW_WIDTH = 1024;
-const double WINDOW_HEIGHT = 768;
+const double WINDOW_WIDTH = 768;
+const double WINDOW_HEIGHT = 576;
 
 
 

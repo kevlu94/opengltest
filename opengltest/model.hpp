@@ -14,6 +14,7 @@ public:
     ~Model() {}
     
     int loadColorOBJ(const char *path);
+    int loadTextureOBJ(const char *objPath, const char *texturePath);
 
     unsigned long numVertices() { return m_numVertices; }
     glm::mat4 model() const;
@@ -22,9 +23,14 @@ public:
     void drawMarkers(GLuint program) const;
     
     // accessor functions
-    glm::vec3 position() { return m_position; }
-    GLuint positionVBO() { return m_positionVBO; }
-    GLuint colorVBO() { return m_colorVBO; }
+    glm::vec3 position() const { return m_position; }
+    GLuint positionVBO() const { return m_positionVBO; }
+    GLuint colorVBO() const { return m_colorVBO; }
+    bool colored() const { return m_colored; }
+    GLuint textureVBO() const { return m_textureVBO; }
+    GLuint texture() const { return m_texture; }
+    bool textured() const { return m_textured; }
+    unsigned long numMarkers() const { return m_markers.size(); }
     
     // mutator functions
     void shift(glm::vec3 distance) { m_position += distance; }
@@ -40,14 +46,19 @@ private:
     // private functions
     
     // private variables
-    unsigned long m_numVertices;
-    GLuint m_positionVBO;
-    GLuint m_colorVBO;
+    unsigned long m_numVertices = 0;
+    GLuint m_positionVBO = 0;
+    GLuint m_colorVBO = 0;
+    bool m_colored = false;
+    GLuint m_textureVBO = 0;
+    GLuint m_texture = 0;
+    bool m_textured = false;
     
     glm::vec3 m_position;
-    GLfloat m_yaw;
-    GLfloat m_pitch;
-    GLfloat m_roll;
+    glm::vec4 m_quaternion;
+    GLfloat m_yaw = 0.0f;
+    GLfloat m_pitch = 0.0f;
+    GLfloat m_roll = 0.0f;
     
     class Marker
     {
@@ -59,9 +70,9 @@ private:
         GLuint colorVBO() const { return m_colorVBO; }
     private:
         glm::vec3 m_center;
-        unsigned long m_numVertices;
-        GLuint m_positionVBO;
-        GLuint m_colorVBO;
+        unsigned long m_numVertices = 0;
+        GLuint m_positionVBO = 0;
+        GLuint m_colorVBO = 0;
     };
     std::vector<Marker> m_markers;
     

@@ -24,9 +24,11 @@ class Scene
 {
 public:
     Scene(Camera *camera, GLuint program);
-    ~Scene() {}
+    ~Scene();
     
     void addModel(Model *model);
+    void addModel(const char *path, glm::vec3 position);
+    void selectModel(unsigned long index) { m_selectedModel = m_models[index]; }
     void update();
     void draw();
     glm::mat4 MVP(Model *model) const { return projection() * view() * model->model(); }
