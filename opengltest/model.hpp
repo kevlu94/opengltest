@@ -10,7 +10,7 @@ class Model
 {
 public:
     Model();
-    Model(const char *path, glm::vec3 position);
+    Model(const char *path, glm::vec3 position, const char *texturePath = nullptr);
     ~Model() {}
     
     int loadColorOBJ(const char *path);
@@ -37,7 +37,7 @@ public:
     void yawBy(GLfloat angle) { m_yaw = fmod(m_yaw + angle, 2.0 * M_PI); }
     void pitchBy(GLfloat angle) { m_pitch = fmod(m_pitch + angle, 2.0 * M_PI); }
     void rollBy(GLfloat angle) { m_roll = fmod(m_roll + angle, 2.0 * M_PI); }
-    void setAttribute(GLuint program, const GLchar *name, GLuint vbo) const;
+    void setAttribute(GLuint program, const GLchar *name, unsigned int size, GLuint vbo) const;
 
     
     

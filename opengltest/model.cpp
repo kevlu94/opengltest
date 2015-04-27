@@ -8,30 +8,28 @@
 #include <SOIL.h>
 
 
+
 using namespace std;
 
 Model::Model()
 {
-    m_numVertices = 0;
-    m_yaw = 0;
-    m_pitch = 0;
-    m_roll = 0;
     glGenBuffers(1, &m_positionVBO);
     glGenBuffers(1, &m_colorVBO);
     glGenBuffers(1, &m_textureVBO);
+    glGenTextures(1, &m_texture);
 }
 
-Model::Model(const char *path, glm::vec3 position)
+Model::Model(const char *path, glm::vec3 position, const char *texturePath)
 {
-    m_numVertices = 0;
-    m_yaw = 0;
-    m_pitch = 0;
-    m_roll = 0;
     m_position = position;
     glGenBuffers(1, &m_positionVBO);
     glGenBuffers(1, &m_colorVBO);
     glGenBuffers(1, &m_textureVBO);
-    loadColorOBJ(path);
+    glGenTextures(1, &m_texture);
+    if (texturePath)
+        loadTextureOBJ(path, texturePath);
+    else
+        loadColorOBJ(path);
 }
 
 
@@ -126,15 +124,16 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
     {
         istringstream iss(line);
         iss >> label;
+        if (!label.length())
+            continue;
         switch (label[0])
         {
             case ('v'):
             {
-                if (label[1] == ' ')
+                if (label.length() == 1)
                 {
                     iss >> v0 >> v1 >> v2;
                     pointList.push_back(glm::vec3(v0, v1, v2));
-                    break;
                 }
                 else if (label[1] == 't')
                 {
@@ -190,15 +189,14 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
                  GL_STATIC_DRAW);
     
     // load texture
+    cerr << "Loading image from file " << texturePath << endl;
     
-    m_texture = SOIL_load_OGL_texture(texturePath, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
-                                      SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y |
-                                      SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
-    if( 0 == m_texture )
-    {
-        printf( "SOIL loading error: '%s'\n", SOIL_last_result() );
-        return -1;
-    }
+    int img_width, img_height;
+    unsigned char* img = SOIL_load_image(texturePath, &img_width, &img_height, NULL, 0);
+    
+    glBindTexture(GL_TEXTURE_2D, m_texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img_width, img_height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
     
     m_textured = true;
     
@@ -210,11 +208,6 @@ glm::mat4 Model::model() const
 {
     glm::quat quaternion = glm::quat(glm::vec3(m_pitch, m_yaw, m_roll));
     glm::mat4 rotationMatrix = glm::mat4_cast(quaternion);
-    
-    //glm::mat4 yawMatrix = glm::rotate(glm::mat4(1.0f), m_yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-    //glm::mat4 pitchMatrix = glm::rotate(glm::mat4(1.0f), m_pitch, glm::vec3(1.0f, 0.0f, 0.0f));
-    //glm::mat4 rollMatrix = glm::rotate(glm::mat4(1.0f), m_roll, glm::vec3(0.0f, 0.0f, 1.0f));
-    //glm::mat4 rotationMatrix = rollMatrix * pitchMatrix * yawMatrix;
     glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), m_position);
     return translateMatrix * rotationMatrix;
     
@@ -244,8 +237,8 @@ void Model::drawMarkers(GLuint program) const
     for (unsigned long i = 0; i < numMarkers; i++)
     {
         marker = &m_markers[i];
-        setAttribute(program, "vertexPosition", marker->positionVBO());
-        setAttribute(program, "vertexColor", marker->colorVBO());
+        setAttribute(program, "vertexPosition", 3, marker->positionVBO());
+        setAttribute(program, "vertexColor", 3, marker->colorVBO());
         glBindBuffer(GL_ARRAY_BUFFER, marker->positionVBO());
         glDrawArrays(GL_TRIANGLES, 0, (int) marker->numVertices());
     }
@@ -257,13 +250,13 @@ void Model::drawMarkers(GLuint program) const
 
 
 
-void Model::setAttribute(GLuint program, const GLchar *name, GLuint vbo) const
+void Model::setAttribute(GLuint program, const GLchar *name, unsigned int size, GLuint vbo) const
 {
     GLint attribLoc = glGetAttribLocation(program, name);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glEnableVertexAttribArray(attribLoc);
     glVertexAttribPointer(attribLoc,
-                          3,
+                          size,
                           GL_FLOAT,
                           GL_FALSE,
                           0,

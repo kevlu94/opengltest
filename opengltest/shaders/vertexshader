@@ -12,6 +12,6 @@ void main(){
 
 	gl_Position =  MVP * vec4(vertexPosition,1);
 	fragmentColor = vertexColor;
-	fragmentTexture = vertexTexture;
+	fragmentTexture = vec2(vertexTexture.x, 1.0 - vertexTexture.y);
 
 }

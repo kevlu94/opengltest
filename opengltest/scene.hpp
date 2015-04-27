@@ -27,7 +27,7 @@ public:
     ~Scene();
     
     void addModel(Model *model);
-    void addModel(const char *path, glm::vec3 position);
+    void addModel(const char *path, glm::vec3 position, const char *texturePath = nullptr);
     void selectModel(unsigned long index) { m_selectedModel = m_models[index]; }
     void update();
     void draw();

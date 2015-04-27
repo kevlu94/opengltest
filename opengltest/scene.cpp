@@ -26,9 +26,9 @@ void Scene::addModel(Model *model)
     selectModel(m_models.size() - 1); // select most recently added model
 }
 
-void Scene::addModel(const char *path, glm::vec3 position)
+void Scene::addModel(const char *path, glm::vec3 position, const char *texturePath)
 {
-    m_models.push_back(new Model(path, position));
+    m_models.push_back(new Model(path, position, texturePath));
     selectModel(m_models.size() - 1); // select most recently added model
 }
 
@@ -128,11 +128,11 @@ void Scene::draw()
         moveModel(model);
         glBindBuffer(GL_ARRAY_BUFFER, model->positionVBO());
         glUniformMatrix4fv(glGetUniformLocation(m_program, "MVP"), 1, GL_FALSE, &(MVP(model))[0][0]);
-        model->setAttribute(m_program, "vertexPosition", model->positionVBO());
+        model->setAttribute(m_program, "vertexPosition", 3, model->positionVBO());
         
         if (model->colored())
         {
-            model->setAttribute(m_program, "vertexColor", model->colorVBO());
+            model->setAttribute(m_program, "vertexColor", 3, model->colorVBO());
         }
 
         if (model->textured())
@@ -140,14 +140,18 @@ void Scene::draw()
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, model->texture());
             glUniform1i(glGetUniformLocation(m_program, "textureSampler"), 0);
-            model->setAttribute(m_program, "vertexTexture", model->textureVBO());
+            model->setAttribute(m_program, "vertexTexture", 2, model->textureVBO());
         }
 
         
         glDrawArrays(GL_TRIANGLES, 0, (int) model->numVertices());
         model->drawMarkers(m_program);
     }
-
+    
+    glDisableVertexAttribArray(glGetAttribLocation(m_program, "vertexPosition"));
+    glDisableVertexAttribArray(glGetAttribLocation(m_program, "vertexColor"));
+    glDisableVertexAttribArray(glGetAttribLocation(m_program, "vertexTexture"));
+    
     // Swap buffers
     glfwSwapBuffers(m_window);
     glfwPollEvents();

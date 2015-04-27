@@ -50,7 +50,7 @@ int initializeGL()
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_FALSE);
     
     // Dark blue background
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -80,8 +80,7 @@ int main(int argc, const char *argv[])
     Camera camera(window, vec3(0,0,2), 0.0f, 0.0f);
     Scene scene(&camera, program);
     
-    for (int i = 1; i < argc; i++)
-        scene.addModel(argv[i], glm::vec3(0.0f, 0.0f, 0.0f));
+    scene.addModel(argv[1], glm::vec3(0.0f, 0.0f, 0.0f), argv[2]);
     
     // create vertex array
     GLuint VertexArrayID;
