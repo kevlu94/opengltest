@@ -1,0 +1,15 @@
+#version 330 core
+
+in vec3 fragmentColor;
+in vec2 fragmentTexture;
+uniform sampler2D textureSampler;
+
+out vec3 color;
+out vec3 HIcolor;
+
+
+void main()
+{
+	HIcolor = fragmentColor + texture(textureSampler, fragmentTexture).rgb;
+	//color = fragmentColor;
+}
