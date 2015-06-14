@@ -52,7 +52,7 @@ int Model::loadColorOBJ(const char *path)
     
     // for faces
     unsigned int index[3];
-    for (int i = 0; getline(infile, line); i++)
+    while (getline(infile, line))
     {
         istringstream iss(line);
         iss >> label;
@@ -122,7 +122,7 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
     
     // for faces
     std::string indexTupleString;
-    for (int i = 0; getline(infile, line); i++)
+    while (getline(infile, line))
     {
         istringstream iss(line);
         iss >> label;
@@ -135,7 +135,7 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
                 if (label.length() == 1)
                 {
                     iss >> v0 >> v1 >> v2;
-                    pointList.push_back(glm::vec3(4.0f * v0, 4.0f * v1, 4.0f * v2));
+                    pointList.push_back(glm::vec3(SCALE_FACE * v0, SCALE_FACE * v1, SCALE_FACE * v2));
                 }
                 else if (label[1] == 't')
                 {

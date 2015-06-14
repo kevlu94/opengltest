@@ -94,7 +94,7 @@ void Scene::update()
         
         m_selectedModel->setMarker(world);
         
-        fprintf(stderr, "Marker %lu: (%f, %f, %f)\n", m_selectedModel->numMarkers(), world[0], world[1], world[2]);
+        printf("%f %f %f\n", world[0] / SCALE_FACE, world[1] / SCALE_FACE, world[2] / SCALE_FACE);
     }
     else if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE)
         mouseDown = false;

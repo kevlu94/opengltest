@@ -12,13 +12,16 @@ FFLAGS =
 
 FRAMEWORKS = -framework CoreGraphics -framework CoreFoundation -framework OpenGL -framework CoreVideo -framework IOKit -framework AppKit
 
-all: test
+all: test proc
 
-test: common/*.cpp *.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(LFLAGS) $(LIBS) $(FFLAGS) $(FRAMEWORKS) common/*.cpp *.cpp -o test
+test: common/*.cpp camera.cpp model.cpp scene.cpp main.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(LFLAGS) $(LIBS) $(FFLAGS) $(FRAMEWORKS) common/*.cpp camera.cpp model.cpp scene.cpp main.cpp -o test
+
+proc: Kabsch.cpp proc-super.cpp
+	$(CC) $(CFLAGS) -I/usr/local/include Kabsch.cpp proc-super.cpp -o proc
 
 run:
 	./test faces/0.obj faces/0.jpg
 
 clean:
-	rm test
+	rm test proc

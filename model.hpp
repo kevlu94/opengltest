@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 
+#include "globals.hpp"
+
 class Model
 {
 public:
