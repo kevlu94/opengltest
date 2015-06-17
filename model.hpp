@@ -46,7 +46,9 @@ public:
     bool hidden() const { return m_hidden; }
 
     void projectOnto(Model *target);
-    std::vector<glm::vec3> *pointVector() { return &m_pointVector; }
+    std::vector<glm::vec3> *positionVector() { return &m_positionVector; }
+    std::vector<glm::vec2> *textureVector() { return &m_textureVector; }
+
     
 private:
     // private functions
@@ -68,15 +70,19 @@ private:
     GLfloat m_pitch = 0.0f;
     GLfloat m_roll = 0.0f;
     
-    std::vector<glm::vec3> m_pointVector;
+    std::vector<glm::vec3> m_positionVector;
     std::vector<glm::vec3> m_colorVector;
     std::vector<glm::vec2> m_textureVector;
     std::vector<glm::vec3> m_normalVector;
     bool m_hidden = false;
 
     bool m_projected = false;
-    std::vector<glm::vec3> m_projectionPointVector;
+    std::vector<glm::vec3> m_projectionPositionVector;
     GLuint m_projectionPositionVBO = 0;
+    std::vector<glm::vec2> m_projectionTextureVector;
+    GLuint m_projectionTextureVBO = 0;
+    GLuint m_projectionTexture = 0;
+
 
 
     class Marker

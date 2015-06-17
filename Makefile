@@ -1,6 +1,6 @@
 CC = /opt/local/bin/g++-mp-4.9
 
-CFLAGS = -w -fopenmp
+CFLAGS = -w -fopenmp -std=c++11
 
 INCLUDES = -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/usr/local/include -I/usr/include 
 

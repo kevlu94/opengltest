@@ -5,9 +5,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/fast_square_root.hpp>
 #include <SOIL.h>
 #include <omp.h>
-
+#include <unordered_set>
 
 using namespace std;
 
@@ -39,7 +40,7 @@ int Model::loadColorOBJ(const char *path)
     cerr << "Loading model from file " << path << endl;
     std::ifstream infile(path);
     
-    std::vector<glm::vec3> pointList;
+    std::vector<glm::vec3> positionList;
     std::vector<glm::vec3> colorList;
     
     
@@ -59,7 +60,7 @@ int Model::loadColorOBJ(const char *path)
             case ('v'):
             {
                 iss >> v0 >> v1 >> v2 >> c0 >> c1 >> c2;
-                pointList.push_back(glm::vec3(v0, v1, v2));
+                positionList.push_back(glm::vec3(v0, v1, v2));
                 colorList.push_back(glm::vec3(c0, c1, c2));
                 break;
             }
@@ -68,7 +69,7 @@ int Model::loadColorOBJ(const char *path)
                 iss >> index[0] >> index[1] >> index[2];
                 for (int i = 0; i < 3; i++)
                 {
-                    m_pointVector.push_back(pointList[index[i] - 1]);
+                    m_positionVector.push_back(positionList[index[i] - 1]);
                     m_colorVector.push_back(colorList[index[i] - 1]);
                 }
                 break;
@@ -80,12 +81,12 @@ int Model::loadColorOBJ(const char *path)
         }
     }
     
-    m_numVertices = m_pointVector.size();
+    m_numVertices = m_positionVector.size();
     
     glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
     glBufferData(GL_ARRAY_BUFFER,
                  m_numVertices * sizeof(glm::vec3),
-                 &m_pointVector[0],
+                 &m_positionVector[0],
                  GL_STATIC_DRAW);
     
     glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
@@ -105,7 +106,7 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
     cerr << "Loading texture model from file " << objPath << endl;
     std::ifstream infile(objPath);
     
-    std::vector<glm::vec3> pointList;
+    std::vector<glm::vec3> positionList;
     std::vector<glm::vec2> textureList;
     std::vector<glm::vec3> normalList;
     
@@ -130,7 +131,7 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
                 if (label.length() == 1)
                 {
                     iss >> v0 >> v1 >> v2;
-                    pointList.push_back(glm::vec3(SCALE_FACE * v0, SCALE_FACE * v1, SCALE_FACE * v2));
+                    positionList.push_back(glm::vec3(SCALE_FACE * v0, SCALE_FACE * v1, SCALE_FACE * v2));
                 }
                 else if (label[1] == 't')
                 {
@@ -176,7 +177,7 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
 
                     vIndex = atoi(vIndexString.c_str());
                     vtIndex = atoi(vtIndexString.c_str());
-                    m_pointVector.push_back(pointList[vIndex - 1]);
+                    m_positionVector.push_back(positionList[vIndex - 1]);
                     m_textureVector.push_back(textureList[vtIndex - 1]);
                 }
                 break;
@@ -188,12 +189,12 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
         }
     }
     
-    m_numVertices = m_pointVector.size();
+    m_numVertices = m_positionVector.size();
     
     glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
     glBufferData(GL_ARRAY_BUFFER,
                  m_numVertices * sizeof(glm::vec3),
-                 &m_pointVector[0],
+                 &m_positionVector[0],
                  GL_STATIC_DRAW);
     
     glBindBuffer(GL_ARRAY_BUFFER, m_textureVBO);
@@ -267,57 +268,127 @@ void Model::drawMarkers(GLuint program) const
     
 }
 
+GLfloat arctan(GLfloat x, GLfloat y)
+{
+    GLfloat extra = 0.0;
+    if (x < 0.0)
+        extra = 180.0;
+    else if (y < 0.0)
+        extra = 360.0;
+    return glm::atan(y/x) / 3.14159 * 180.0 + extra;
+}
+
+float correspondenceScore(glm::vec3 p1, glm::vec3 p2)
+{
+    glm::vec3 diff = p2 - p1;
+    return glm::dot(diff, diff);
+
+    // GLfloat x1 = p1[0], y1 = p1[1], z1 = p1[2], x2 = p2[0], y2 = p2[1], z2 = p2[2];
+
+    // GLfloat phi1 = arctan(x1, -z1);
+    // GLfloat phi2 = arctan(x2, -z2);
+
+    // GLfloat theta1 = glm::acos(y1 / glm::fastSqrt(x1*x1 + y1*y1 + z1*z1));
+    // GLfloat theta2 = glm::acos(y2 / glm::fastSqrt(x2*x2 + y2*y2 + z2*z2));
+
+    // GLfloat dPhi = phi2 - phi1;
+    // GLfloat dTheta = theta2 - theta1;
+    // return dPhi*dPhi + dTheta*dTheta;
+}
+
+
+
 // Use ICP to project points onto another model, O(mn)
 void Model::projectOnto(Model *target)
 {
     if (m_projected)
         return;
 
-    std::vector<glm::vec3> *targetPoints = target->pointVector();
+    fprintf(stderr, "Constructing projection...\n");
 
-    int numTargetPoints = targetPoints->size();
 
-    glm::vec3 curPoint;;
-    glm::vec3 curTargetPoint;
-    glm::vec3 closest;
+    // std::vector<glm::vec2> p;
+    // p.push_back(glm::vec2(1.0, 0.0));
+    // p.push_back(glm::vec2(0.866, 0.5));
+    // p.push_back(glm::vec2(0.5, 0.866));
+    // p.push_back(glm::vec2(0.0, 1.0));
+    // p.push_back(glm::vec2(-0.5, 0.866));
+    // p.push_back(glm::vec2(-0.866, 0.5));
+    // p.push_back(glm::vec2(-1.0, 0.0));
+    // p.push_back(glm::vec2(-0.866, -0.5));
+    // p.push_back(glm::vec2(-0.5, -0.866));
+    // p.push_back(glm::vec2(0.0, -1.0));
+    // p.push_back(glm::vec2(0.5, -0.866));
+    // p.push_back(glm::vec2(0.866, -0.5));
+    // p.push_back(glm::vec2(1.0, 0.0));
+
+    // for (int i = 0; i < p.size(); i++)
+    // {
+    //     cout << arctan(p[i][0], p[i][1]) << endl;
+    // }
+
+    // exit(1);
+
+
+
+
+    std::vector<glm::vec3> *targetPositions = target->positionVector();
+    std::vector<glm::vec2> *targetTextures = target->textureVector();
+
+
+    int numTargetPositions = targetPositions->size();
+
+    glm::vec3 curPosition;;
+    glm::vec3 curTargetPosition;
+    int bestIndex;
     glm::vec3 diff;
-    float bestDistance;;
-    float curDistance;
+    float bestScore;
+    float curScore;
 
-    m_projectionPointVector.reserve(m_numVertices);
+    m_projectionPositionVector = std::vector<glm::vec3>(m_numVertices);
+    m_projectionTextureVector = std::vector<glm::vec2>(m_numVertices);
 
-    int numProcs = omp_get_num_procs();
-    fprintf(stderr, "processes: %i\n", numProcs);
-    omp_set_num_threads(numProcs);
-    exit(1);
+    // unordered_set<int> used;
 
-    #pragma omp parallel for
-    for (int i = 0; i < m_numVertices; i++)
+    int i = 0, j = 0;
+    #pragma omp parallel for private(curPosition, curTargetPosition, bestIndex, diff, bestScore, curScore, j)
+    for (i = 0; i < m_numVertices; i++)
     {
-        curPoint = m_pointVector[i];
-        bestDistance = FLT_MAX;
-        for (int j = 0; j < numTargetPoints; j++)
+        curPosition = m_positionVector[i];
+        bestScore = FLT_MAX;
+        for (j = 0; j < numTargetPositions; j++)
         {
-            curTargetPoint = (*targetPoints)[j];
-            diff = curTargetPoint - curPoint;
-            curDistance = glm::dot(diff, diff);
-            fprintf(stderr, "%i to %i is %f\n", i, j, curDistance);
-            if (curDistance < bestDistance)
+            // if (used.find(j) != used.end())
+            //     continue;
+            curScore = correspondenceScore(curPosition, (*targetPositions)[j]);
+            if (curScore < bestScore)
             {
-                bestDistance = curDistance;
-                closest = curTargetPoint;
+                bestScore = curScore;
+                bestIndex = j;
             }
         }
-        m_projectionPointVector[i] = closest;
+        m_projectionPositionVector[i] = (*targetPositions)[bestIndex];
+        m_projectionTextureVector[i] = (*targetTextures)[bestIndex];
+        // used.insert(bestIndex);
     }
+    m_projectionTexture = target->texture();
 
+    glGenBuffers(1, &m_projectionPositionVBO);
     glBindBuffer(GL_ARRAY_BUFFER, m_projectionPositionVBO);
     glBufferData(GL_ARRAY_BUFFER,
                  m_numVertices * sizeof(glm::vec3),
-                 &m_projectionPointVector[0],
+                 &m_projectionPositionVector[0],
+                 GL_STATIC_DRAW);
+
+    glGenBuffers(1, &m_projectionTextureVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_projectionTextureVBO);
+    glBufferData(GL_ARRAY_BUFFER,
+                 m_numVertices * sizeof(glm::vec2),
+                 &m_projectionTextureVector[0],
                  GL_STATIC_DRAW);
 
     m_projected = true;
+    fprintf(stderr, "DONE!\n");
 }
 
 void Model::drawProjection(GLuint program) const
@@ -336,9 +407,12 @@ void Model::drawProjection(GLuint program) const
     if (m_textured)
     {
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_texture);
+        glBindTexture(GL_TEXTURE_2D, m_projectionTexture);
+        //glBindTexture(GL_TEXTURE_2D, m_texture);
         glUniform1i(glGetUniformLocation(program, "textureSampler"), 0);
-        setAttribute(program, "vertexTexture", 2, m_textureVBO);
+        setAttribute(program, "vertexTexture", 2, m_projectionTextureVBO);
+        //setAttribute(program, "vertexTexture", 2, m_textureVBO);
+
     }
     glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
 }
