@@ -1,6 +1,6 @@
-CC = g++
+CC = /opt/local/bin/g++-mp-4.9
 
-CFLAGS = -w
+CFLAGS = -w -fopenmp
 
 INCLUDES = -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/usr/local/include -I/usr/include 
 
@@ -21,7 +21,7 @@ proc: Kabsch.cpp proc-super.cpp
 	$(CC) $(CFLAGS) -I/usr/local/include Kabsch.cpp proc-super.cpp -o proc
 
 run:
-	./test faces/0.obj faces/0.jpg
+	./test faces/ref.obj faces/ref.jpg
 
 clean:
 	rm test proc

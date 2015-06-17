@@ -27,7 +27,7 @@ public:
     ~Scene();
     
     void addModel(Model *model);
-    void addModel(const char *path, glm::vec3 position, const char *texturePath = nullptr);
+    void addModel(const char *path, glm::vec3 position, const char *texturePath = (char*) 0);
     void selectModel(unsigned long index) { m_selectedModel = m_models[index]; }
     void update();
     void draw();
@@ -54,6 +54,22 @@ private:
     Camera *m_camera;
     std::vector<Model*> m_models;
     Model *m_selectedModel;
+
+    /*class Correspondence
+    {
+    public:
+        Marker(glm::vec3 position);
+        ~Marker() {}
+        unsigned long numVertices() const { return m_numVertices; }
+        GLuint positionVBO() const { return m_positionVBO; }
+        GLuint colorVBO() const { return m_colorVBO; }
+    private:
+        glm::vec3 m_center;
+        unsigned long m_numVertices = 0;
+        GLuint m_positionVBO = 0;
+        GLuint m_colorVBO = 0;
+    };
+    std::vector<Marker> m_markers;*/
 };
 
 // templated functions

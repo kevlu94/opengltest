@@ -80,7 +80,15 @@ int main(int argc, const char *argv[])
     Camera camera(window, vec3(0,0,2), 0.0f, 0.0f);
     Scene scene(&camera, program);
     
+    if (argc < 3)
+    {
+        fprintf(stderr, "Usage: ./test X.obj X.jpg [Y.obj] [Y.jpg]\n");
+        return -1;
+    }
     scene.addModel(argv[1], glm::vec3(0.0f, 0.0f, 0.0f), argv[2]);
+    if (argc == 5)
+        scene.addModel(argv[3], glm::vec3(0.0f, 0.0f, 0.0f), argv[4]);
+
     
     // create vertex array
     GLuint VertexArrayID;

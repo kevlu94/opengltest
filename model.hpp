@@ -12,7 +12,7 @@ class Model
 {
 public:
     Model();
-    Model(const char *path, glm::vec3 position, const char *texturePath = nullptr);
+    Model(const char *path, glm::vec3 position, const char *texturePath = (char*) 0);
     ~Model() {}
     
     int loadColorOBJ(const char *path);
@@ -23,6 +23,7 @@ public:
     void setMarker(glm::vec3 position);
     void undoMarker();
     void drawMarkers(GLuint program) const;
+    void drawProjection(GLuint program) const;
     
     // accessor functions
     glm::vec3 position() const { return m_position; }
@@ -41,8 +42,11 @@ public:
     void rollBy(GLfloat angle) { m_roll = fmod(m_roll + angle, 2.0 * M_PI); }
     void setAttribute(GLuint program, const GLchar *name, unsigned int size, GLuint vbo) const;
 
-    void unravel(std::vector<glm::vec3> *position, std::vector<glm::vec3> *color, glm::vec3 eye1, glm::vec3 eye2, glm::vec3 mouth);
-    
+    void toggleHide() { m_hidden = !m_hidden; }
+    bool hidden() const { return m_hidden; }
+
+    void projectOnto(Model *target);
+    std::vector<glm::vec3> *pointVector() { return &m_pointVector; }
     
 private:
     // private functions
@@ -64,6 +68,17 @@ private:
     GLfloat m_pitch = 0.0f;
     GLfloat m_roll = 0.0f;
     
+    std::vector<glm::vec3> m_pointVector;
+    std::vector<glm::vec3> m_colorVector;
+    std::vector<glm::vec2> m_textureVector;
+    std::vector<glm::vec3> m_normalVector;
+    bool m_hidden = false;
+
+    bool m_projected = false;
+    std::vector<glm::vec3> m_projectionPointVector;
+    GLuint m_projectionPositionVBO = 0;
+
+
     class Marker
     {
     public:

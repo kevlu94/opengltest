@@ -6,7 +6,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <SOIL.h>
-
+#include <omp.h>
 
 
 using namespace std;
@@ -41,8 +41,6 @@ int Model::loadColorOBJ(const char *path)
     
     std::vector<glm::vec3> pointList;
     std::vector<glm::vec3> colorList;
-    std::vector<glm::vec3> pointBuffer;
-    std::vector<glm::vec3> colorBuffer;
     
     
     string line, label;
@@ -70,8 +68,8 @@ int Model::loadColorOBJ(const char *path)
                 iss >> index[0] >> index[1] >> index[2];
                 for (int i = 0; i < 3; i++)
                 {
-                    pointBuffer.push_back(pointList[index[i] - 1]);
-                    colorBuffer.push_back(colorList[index[i] - 1]);
+                    m_pointVector.push_back(pointList[index[i] - 1]);
+                    m_colorVector.push_back(colorList[index[i] - 1]);
                 }
                 break;
             }
@@ -82,18 +80,18 @@ int Model::loadColorOBJ(const char *path)
         }
     }
     
-    m_numVertices = pointBuffer.size();
+    m_numVertices = m_pointVector.size();
     
     glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
     glBufferData(GL_ARRAY_BUFFER,
                  m_numVertices * sizeof(glm::vec3),
-                 &pointBuffer[0],
+                 &m_pointVector[0],
                  GL_STATIC_DRAW);
     
     glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
     glBufferData(GL_ARRAY_BUFFER,
                  m_numVertices * sizeof(glm::vec3),
-                 &colorBuffer[0],
+                 &m_colorVector[0],
                  GL_STATIC_DRAW);
     
     m_colored = true;
@@ -110,9 +108,6 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
     std::vector<glm::vec3> pointList;
     std::vector<glm::vec2> textureList;
     std::vector<glm::vec3> normalList;
-    std::vector<glm::vec3> pointBuffer;
-    std::vector<glm::vec2> textureBuffer;
-    std::vector<glm::vec3> normalBuffer;
     
     
     string line, label;
@@ -175,14 +170,14 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
                         vnIndexString = vtIndexString.substr(delimiterLoc + 1);
                         vtIndexString = vtIndexString.substr(0, delimiterLoc);
 
-                        vnIndex = stoi(vnIndexString);
-                        normalBuffer.push_back(normalList[vnIndex - 1]);
+                        vnIndex = atoi(vnIndexString.c_str());
+                        m_normalVector.push_back(normalList[vnIndex - 1]);
                     }
 
-                    vIndex = stoi(vIndexString);
-                    vtIndex = stoi(vtIndexString);
-                    pointBuffer.push_back(pointList[vIndex - 1]);
-                    textureBuffer.push_back(textureList[vtIndex - 1]);
+                    vIndex = atoi(vIndexString.c_str());
+                    vtIndex = atoi(vtIndexString.c_str());
+                    m_pointVector.push_back(pointList[vIndex - 1]);
+                    m_textureVector.push_back(textureList[vtIndex - 1]);
                 }
                 break;
             }
@@ -193,24 +188,24 @@ int Model::loadTextureOBJ(const char *objPath, const char *texturePath)
         }
     }
     
-    m_numVertices = pointBuffer.size();
+    m_numVertices = m_pointVector.size();
     
     glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
     glBufferData(GL_ARRAY_BUFFER,
                  m_numVertices * sizeof(glm::vec3),
-                 &pointBuffer[0],
+                 &m_pointVector[0],
                  GL_STATIC_DRAW);
     
     glBindBuffer(GL_ARRAY_BUFFER, m_textureVBO);
     glBufferData(GL_ARRAY_BUFFER,
                  m_numVertices * sizeof(glm::vec2),
-                 &textureBuffer[0],
+                 &m_textureVector[0],
                  GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_normalVBO);
     glBufferData(GL_ARRAY_BUFFER,
                  m_numVertices * sizeof(glm::vec3),
-                 &normalBuffer[0],
+                 &m_normalVector[0],
                  GL_STATIC_DRAW);
 
 
@@ -272,6 +267,81 @@ void Model::drawMarkers(GLuint program) const
     
 }
 
+// Use ICP to project points onto another model, O(mn)
+void Model::projectOnto(Model *target)
+{
+    if (m_projected)
+        return;
+
+    std::vector<glm::vec3> *targetPoints = target->pointVector();
+
+    int numTargetPoints = targetPoints->size();
+
+    glm::vec3 curPoint;;
+    glm::vec3 curTargetPoint;
+    glm::vec3 closest;
+    glm::vec3 diff;
+    float bestDistance;;
+    float curDistance;
+
+    m_projectionPointVector.reserve(m_numVertices);
+
+    int numProcs = omp_get_num_procs();
+    fprintf(stderr, "processes: %i\n", numProcs);
+    omp_set_num_threads(numProcs);
+    exit(1);
+
+    #pragma omp parallel for
+    for (int i = 0; i < m_numVertices; i++)
+    {
+        curPoint = m_pointVector[i];
+        bestDistance = FLT_MAX;
+        for (int j = 0; j < numTargetPoints; j++)
+        {
+            curTargetPoint = (*targetPoints)[j];
+            diff = curTargetPoint - curPoint;
+            curDistance = glm::dot(diff, diff);
+            fprintf(stderr, "%i to %i is %f\n", i, j, curDistance);
+            if (curDistance < bestDistance)
+            {
+                bestDistance = curDistance;
+                closest = curTargetPoint;
+            }
+        }
+        m_projectionPointVector[i] = closest;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_projectionPositionVBO);
+    glBufferData(GL_ARRAY_BUFFER,
+                 m_numVertices * sizeof(glm::vec3),
+                 &m_projectionPointVector[0],
+                 GL_STATIC_DRAW);
+
+    m_projected = true;
+}
+
+void Model::drawProjection(GLuint program) const
+{
+    if (!m_projected)
+        return;
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_projectionPositionVBO);
+    setAttribute(program, "vertexPosition", 3, m_projectionPositionVBO);
+
+    if (m_colored)
+    {
+        setAttribute(program, "vertexColor", 3, m_colorVBO);
+    }
+
+    if (m_textured)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_texture);
+        glUniform1i(glGetUniformLocation(program, "textureSampler"), 0);
+        setAttribute(program, "vertexTexture", 2, m_textureVBO);
+    }
+    glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
+}
 
 // Private functions
 
@@ -288,11 +358,6 @@ void Model::setAttribute(GLuint program, const GLchar *name, unsigned int size, 
                           GL_FALSE,
                           0,
                           (void*)0);
-}
-
-void Model::unravel(std::vector<glm::vec3> *position, std::vector<glm::vec3> *color, glm::vec3 eye1, glm::vec3 eye2, glm::vec3 mouth)
-{
-
 }
 
 
@@ -332,11 +397,11 @@ vector<glm::vec3> cube(glm::vec3 center, GLfloat size)
 Model::Marker::Marker(glm::vec3 position)
 {
     std::vector<glm::vec3> positionBuffer = cube(position, 0.002f);
-    std::vector<glm::vec3> colorBuffer;
+    std::vector<glm::vec3> m_colorVector;
     glm::vec3 color(1.0f, 1.0f, 1.0f);
     m_numVertices = positionBuffer.size();
     for (unsigned long i = 0; i < m_numVertices; i++)
-        colorBuffer.push_back(color);
+        m_colorVector.push_back(color);
     glGenBuffers(1, &m_positionVBO);
     glGenBuffers(1, &m_colorVBO);
     glBindBuffer(GL_ARRAY_BUFFER, m_positionVBO);
@@ -346,8 +411,8 @@ Model::Marker::Marker(glm::vec3 position)
                  GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
     glBufferData(GL_ARRAY_BUFFER,
-                 colorBuffer.size() * sizeof(glm::vec3),
-                 &colorBuffer[0],
+                 m_colorVector.size() * sizeof(glm::vec3),
+                 &m_colorVector[0],
                  GL_STATIC_DRAW);
 }
 
