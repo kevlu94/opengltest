@@ -62,6 +62,15 @@ void Scene::moveModel(Model *model)
     if (glfwGetKey( m_window, GLFW_KEY_Q ) == GLFW_PRESS){
         model->rollBy(angle);
     }
+
+    // adjust texture towards original
+    if (glfwGetKey( m_window, GLFW_KEY_Z ) == GLFW_PRESS){
+        model->adjustWeight(-0.01);
+    }
+    // adjust texture towards target
+    if (glfwGetKey( m_window, GLFW_KEY_X ) == GLFW_PRESS){
+        model->adjustWeight(0.01);
+    }
 }
 
 
@@ -161,6 +170,8 @@ void Scene::draw()
         glBindBuffer(GL_ARRAY_BUFFER, model->positionVBO());
         glUniformMatrix4fv(glGetUniformLocation(m_program, "MVP"), 1, GL_FALSE, &(MVP(model))[0][0]);
         model->setAttribute(m_program, "vertexPosition", 3, model->positionVBO());
+        model->setAttribute(m_program, "otherVertexPosition", 3, model->positionVBO()); // to prevent errors
+        glUniform1f(glGetUniformLocation(m_program, "weight"), 1.0);
         
         if (model->colored())
         {
@@ -173,6 +184,7 @@ void Scene::draw()
             glBindTexture(GL_TEXTURE_2D, model->texture());
             glUniform1i(glGetUniformLocation(m_program, "textureSampler"), 0);
             model->setAttribute(m_program, "vertexTexture", 2, model->textureVBO());
+            model->setAttribute(m_program, "otherVertexTexture", 2, model->textureVBO()); // to prevent errors
         }
 
         if (!model->hidden())

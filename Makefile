@@ -12,16 +12,19 @@ FFLAGS =
 
 FRAMEWORKS = -framework CoreGraphics -framework CoreFoundation -framework OpenGL -framework CoreVideo -framework IOKit -framework AppKit
 
-all: test proc
+all: tps proc test
 
-test: common/*.cpp camera.cpp model.cpp scene.cpp main.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(LFLAGS) $(LIBS) $(FFLAGS) $(FRAMEWORKS) common/*.cpp camera.cpp model.cpp scene.cpp main.cpp -o test
+tps: spline/tps.cpp
+	$(CC) -w -O2 -Ispline -I/usr/local/include spline/tps.cpp -o tps
 
 proc: Kabsch.cpp proc-super.cpp
 	$(CC) $(CFLAGS) -I/usr/local/include Kabsch.cpp proc-super.cpp -o proc
+
+test: common/*.cpp camera.cpp model.cpp scene.cpp main.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(LFLAGS) $(LIBS) $(FFLAGS) $(FRAMEWORKS) common/*.cpp camera.cpp model.cpp scene.cpp main.cpp -o test
 
 run:
 	./test faces/ref.obj faces/ref.jpg
 
 clean:
-	rm test proc
+	rm tps proc test

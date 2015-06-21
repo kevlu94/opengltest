@@ -16,8 +16,6 @@ Eigen::Matrix3Xd loadLandmarks(const char *filename);
 
 int main(int argc, char *argv[])
 {
-     TestFind3DAffineTransform();
-
     if (argc < 4)
     {
         cerr << "Usage: ./proc <face data> <landmark data> <reference landmark data>" << endl;
@@ -38,16 +36,6 @@ int main(int argc, char *argv[])
     cerr << A(1,0) << " " << A(1,1) << " " << A(1,2) << " " << A(1,3) << endl;
     cerr << A(2,0) << " " << A(2,1) << " " << A(2,2) << " " << A(2,3) << endl;
     cerr << A(3,0) << " " << A(3,1) << " " << A(3,2) << " " << A(3,3) << endl;
-
-
-    glm::mat4 translation;// = procTranslate(landmarks, refLandmarks);
-
-    glm::mat4 rotation(1.0f);
-    glm::mat4 scale(1.0f);
-
-    glm::mat4 m = scale * rotation * translation;
-
-
 
     // vertex list
     float v0, v1, v2;
@@ -79,7 +67,7 @@ Eigen::Matrix3Xd loadLandmarks(const char *filename)
 
 	float v0, v1, v2;
 
-	for (int i = 0; getline(infile, line); i++)
+	while (getline(infile, line))
     {
         istringstream iss(line);
         iss >> v0 >> v1 >> v2;

@@ -4,12 +4,14 @@ in vec3 fragmentColor;
 in vec2 fragmentTexture;
 uniform sampler2D textureSampler;
 
+in vec2 otherFragmentTexture;
+uniform sampler2D otherTextureSampler;
+uniform float weight;
+
 out vec3 color;
-out vec3 HIcolor;
 
 
 void main()
 {
-	HIcolor = fragmentColor + texture(textureSampler, fragmentTexture).rgb;
-	//color = fragmentColor;
+	color = fragmentColor + weight * texture(textureSampler, fragmentTexture).rgb + (1 - weight) * texture(otherTextureSampler, otherFragmentTexture).rgb;
 }

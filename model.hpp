@@ -46,6 +46,7 @@ public:
     bool hidden() const { return m_hidden; }
 
     void projectOnto(Model *target);
+    void adjustWeight(float amount);
     std::vector<glm::vec3> *positionVector() { return &m_positionVector; }
     std::vector<glm::vec2> *textureVector() { return &m_textureVector; }
 
@@ -82,6 +83,7 @@ private:
     std::vector<glm::vec2> m_projectionTextureVector;
     GLuint m_projectionTextureVBO = 0;
     GLuint m_projectionTexture = 0;
+    float m_projectionWeight = 1.0;
 
 
 

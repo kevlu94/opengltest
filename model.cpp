@@ -288,12 +288,9 @@ float correspondenceScore(glm::vec3 p1, glm::vec3 p2)
     // GLfloat phi1 = arctan(x1, -z1);
     // GLfloat phi2 = arctan(x2, -z2);
 
-    // GLfloat theta1 = glm::acos(y1 / glm::fastSqrt(x1*x1 + y1*y1 + z1*z1));
-    // GLfloat theta2 = glm::acos(y2 / glm::fastSqrt(x2*x2 + y2*y2 + z2*z2));
-
     // GLfloat dPhi = phi2 - phi1;
-    // GLfloat dTheta = theta2 - theta1;
-    // return dPhi*dPhi + dTheta*dTheta;
+    // GLfloat dy = y2 - y1;
+    // return dPhi*dPhi/3240000 + dy*dy;
 }
 
 
@@ -305,32 +302,6 @@ void Model::projectOnto(Model *target)
         return;
 
     fprintf(stderr, "Constructing projection...\n");
-
-
-    // std::vector<glm::vec2> p;
-    // p.push_back(glm::vec2(1.0, 0.0));
-    // p.push_back(glm::vec2(0.866, 0.5));
-    // p.push_back(glm::vec2(0.5, 0.866));
-    // p.push_back(glm::vec2(0.0, 1.0));
-    // p.push_back(glm::vec2(-0.5, 0.866));
-    // p.push_back(glm::vec2(-0.866, 0.5));
-    // p.push_back(glm::vec2(-1.0, 0.0));
-    // p.push_back(glm::vec2(-0.866, -0.5));
-    // p.push_back(glm::vec2(-0.5, -0.866));
-    // p.push_back(glm::vec2(0.0, -1.0));
-    // p.push_back(glm::vec2(0.5, -0.866));
-    // p.push_back(glm::vec2(0.866, -0.5));
-    // p.push_back(glm::vec2(1.0, 0.0));
-
-    // for (int i = 0; i < p.size(); i++)
-    // {
-    //     cout << arctan(p[i][0], p[i][1]) << endl;
-    // }
-
-    // exit(1);
-
-
-
 
     std::vector<glm::vec3> *targetPositions = target->positionVector();
     std::vector<glm::vec2> *targetTextures = target->textureVector();
@@ -391,6 +362,15 @@ void Model::projectOnto(Model *target)
     fprintf(stderr, "DONE!\n");
 }
 
+void Model::adjustWeight(float amount)
+{
+    m_projectionWeight += amount;
+    if (m_projectionWeight < 0.0)
+        m_projectionWeight = 0.0;
+    else if (m_projectionWeight > 1.0)
+        m_projectionWeight = 1.0;
+}
+
 void Model::drawProjection(GLuint program) const
 {
     if (!m_projected)
@@ -398,6 +378,8 @@ void Model::drawProjection(GLuint program) const
 
     glBindBuffer(GL_ARRAY_BUFFER, m_projectionPositionVBO);
     setAttribute(program, "vertexPosition", 3, m_projectionPositionVBO);
+    setAttribute(program, "otherVertexPosition", 3, m_positionVBO);
+    glUniform1f(glGetUniformLocation(program, "weight"), m_projectionWeight);
 
     if (m_colored)
     {
@@ -408,10 +390,13 @@ void Model::drawProjection(GLuint program) const
     {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_projectionTexture);
-        //glBindTexture(GL_TEXTURE_2D, m_texture);
         glUniform1i(glGetUniformLocation(program, "textureSampler"), 0);
         setAttribute(program, "vertexTexture", 2, m_projectionTextureVBO);
-        //setAttribute(program, "vertexTexture", 2, m_textureVBO);
+        
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_texture);
+        glUniform1i(glGetUniformLocation(program, "otherTextureSampler"), 1);
+        setAttribute(program, "otherVertexTexture", 2, m_textureVBO);
 
     }
     glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
